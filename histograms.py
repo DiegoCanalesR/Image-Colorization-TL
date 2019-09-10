@@ -3,10 +3,6 @@
 import cv2
 import matplotlib.pyplot as plt
 
-#img = cv2.imread('n01443537_44.jpeg')
-#img = cv2.imread('n01443537_11.jpeg')
-#img = cv2.imread('n07583066_238.jpeg')
-#img = cv2.imread('green.jpg')
 #imags = ['n01443537_44.jpeg', 'n01443537_11.jpeg', 'n01443537_410.jpeg']
 imags = ['n12267677_1.jpeg', 'n12267677_48.jpeg', 'n12267677_197.jpeg' ]
 R,G,B = [],[],[]
