@@ -2,9 +2,9 @@
 
 import cv2
 import matplotlib.pyplot as plt
+from preprocess import train_set_tiny_imagenet
 
-#imags = ['n01443537_44.jpeg', 'n01443537_11.jpeg', 'n01443537_410.jpeg']
-imags = ['n12267677_1.jpeg', 'n12267677_48.jpeg', 'n12267677_197.jpeg' ]
+imags = train_set_tiny_imagenet(1)
 R,G,B = [],[],[]
 L,a,b = [],[],[]
 
@@ -44,8 +44,7 @@ print('-'*30)
 plot_histograms(canales_RGB)
 print('Colorspace L*a*b:')
 print('-'*30)
-plot_histograms(canales_Lab)
-
+plot_histograms(canales_Lab)  
 
 
 "Proyecto-EL4106" 
