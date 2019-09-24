@@ -5,10 +5,10 @@ import tensorflow as tf
 # Tipos de capa
 
 #Capa convolucional
-def conv_layer(layer_name, tensor, kernel_shape, stride):
-    weights = tf.get_variable("weights", kernel_shape,
+def conv_layer(layer_name, tensor, shape, stride):
+    weights = tf.get_variable("weights", shape,
                                initializer = tf.contrib.layers.xavier_initializer_conv2d())
-    biases = tf.get_variable("biases", [kernel_shape[3]],
+    biases = tf.get_variable("biases", [shape[3]],
                              initializer=tf.constant_initializer(0.05))
     tf.summary.histogram(layer_name + "/weights", weights)
     tf.summary.histogram(layer_name + "/biases", biases)
@@ -16,10 +16,10 @@ def conv_layer(layer_name, tensor, kernel_shape, stride):
     return tf.nn.relu(conv + biases)
 
 #Capa fully-connected
-def fc_layer(layer_name, tensor, weights_shape):
-    weights = tf.get_variable("weights", weights_shape,
+def fc_layer(layer_name, tensor, shape):
+    weights = tf.get_variable("weights", shape,
                               initializer = tf.contrib.layers.xavier_initializer())
-    biases = tf.get_variable("biases", [weights_shape[1]],
+    biases = tf.get_variable("biases", [shape[1]],
                              initializer=tf.constant_initializer(0.0))
     tf.summary.histogram(layer_name + "/weights", weights)
     tf.summary.histogram(layer_name + "/biases", biases)
@@ -27,7 +27,7 @@ def fc_layer(layer_name, tensor, weights_shape):
     return tf.nn.relu(mult_out+biases)
 
 #Capa de fusion de features
-def fusion_layer(midlvl_features, global_features, stride):
+def fusion_layer(midlvl_features, global_features, shape, stride):
     midlvlft_shape = midlvl_features.get_shape().as_list()
     new_shape = [config.batch_size, midlvlft_shape[1]*midlvlft_shape[2], 256]
     midlvlft_reshaped = tf.reshape(midlvlft_shape, new_shape)
@@ -44,13 +44,13 @@ def fusion_layer(midlvl_features, global_features, stride):
     fusion_lvl = tf.stack(fusion_lvl, 1)
     fusion_shape = [config.batch_size, 28, 28, 512]
     fusion_lvl = tf.reshape(fusion_lvl, fusion_shape)
-    return conv_layer('Fusion', fusion_lvl, stride)
+    return conv_layer('Fusion', fusion_lvl, shape, stride)
 
 #Capa de salida
-def output_layer(tensor, kernel_shape, stride):
-    weights = tf.get_variable("weights", kernel_shape,
+def output_layer(tensor, shape, stride):
+    weights = tf.get_variable("weights", shape,
                                initializer = tf.contrib.layers.xavier_initializer_conv2d())
-    biases = tf.get_variable("biases", [kernel_shape[3]],
+    biases = tf.get_variable("biases", [shape[3]],
                              initializer=tf.constant_initializer(0.05))
     conv = tf.nn.conv2d(tensor, weights, stride, padding='SAME')
     output_data = tf.nn.sigmoid(tf.nn.bias_add(conv, biases))
