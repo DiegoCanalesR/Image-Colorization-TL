@@ -5,10 +5,12 @@ from preprocess import batch_tiny_imagenet
 from preprocess import join_image
 import time
 import os
+import matplotlib.pyplot as plt
 
 image_size = 224
-batch_size = 1
-epochs = 30
+batch_size = 4
+num_batches = 2
+epochs = 20
 model_path = os.getcwd() + '\\model1\\model1'
 tf.reset_default_graph()
 
@@ -79,6 +81,7 @@ class model():
     #Construccion del modelo
     def build_model(self):
         img = self.inputs
+        
         #capas para low-level features
         lowlvl = conv_layer('low_lvl_conv1', img, shape=[3, 3, 1, 64], stride=[1, 2, 2, 1])
         lowlvl = conv_layer('low_lvl_conv2', lowlvl, shape=[3, 3, 64, 128], stride=[1, 1, 1, 1])
@@ -102,10 +105,10 @@ class model():
         globalft = fc_layer('global_fc1', global_flat, shape=[dim, 1024])
         globalft = fc_layer('global_fc2', globalft, shape=[1024, 512])
         globalft = fc_layer('global_fc3', globalft, shape=[512, 256])
-
+    
         #capa de fusion
         ft = fusion_layer(midlvl, globalft, shape=[1, 1, 512, 256], stride=[1, 1, 1, 1])
-        
+            
         #capa de colorizacion
         ft = conv_layer('color_conv1', ft, shape=[3, 3, 256, 128], stride=[1, 1, 1, 1])
         ft = tf.image.resize_images(ft, [56, 56], method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
@@ -122,21 +125,25 @@ class model():
         
    #Para entrenar
     def train_model(self):
+       # with tf.device("/gpu:0"):
         optimizer = self.optimizer()
         saver = tf.train.Saver()
         data_size = 100000
         #num_batches = int(data_size/batch_size)
-        num_batches = 10
+        #num_batches = 2
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
-            for epoch in range(1,epochs):
+            for epoch in range(1,epochs+1):
                 t_epoch_0 = time.time()
                 loss_sum = 0
-                for batch in range(1,num_batches):
+                for batch in range(1,num_batches+1):
                     _, X, Y = batch_tiny_imagenet('train', batch_size)
+                    #plt.imshow(X[0][:,:,0]); plt.show()
+                    #plt.imshow(Y[0][:,:,0]); plt.show()
+                    #plt.imshow(Y[0][:,:,1]); plt.show()
                     dict_train = {self.inputs: X, self.labels: Y}
                     opt , loss_val = sess.run([optimizer, self.loss], dict_train)
-                    loss_sum = (loss_sum + loss_val)/batch
+                    loss_sum += loss_val/num_batches
                     #print('batch: '+batch+', loss: '+loss_val)
                 t_epoch = time.time() - t_epoch_0
                 #loss = loss_sum/num_batches
@@ -156,7 +163,7 @@ class model():
                 Y_pred, loss_val = sess.run([self.output, self.loss], dict_test)
                 join_image(X, Y_pred, batch_size, imgs)
                 loss_sum = (loss_sum + loss_val)/batch
-            print('loss: '+loss_sum)
+            print('loss: '+loss_val)
                 
 imgs = batch_tiny_imagenet('train', 100)            
 m = model() 
