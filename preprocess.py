@@ -6,6 +6,7 @@ from random import shuffle
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def tiny_imagenet_txt(set_type, img_type):
     path = os.getcwd() + '\\tiny-imagenet-200\\'+ set_type
     imgs = []
@@ -26,10 +27,10 @@ def get_gray_and_ab(imgs):
     for img in imgs:
         img = cv2.imread(img)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
-        gray.append(img[:,:,0])
+        gray.append(np.resize(img[:,:,0],[224,224,1]))
         a.append(img[:,:,1])
         b.append(img[:,:,2])
-        ab.append(img[:,:,1:])
+        ab.append(np.resize(img[:,:,1:],[224,224,2]))
     return gray,a,b,ab
 
 def batch_tiny_imagenet(set_type, batch_size):
@@ -52,6 +53,6 @@ def join_image(X, Y_pred, batch_size, imgs):
 #tiny_imagenet_txt('test', '.JPEG')
 #tiny_imagenet_txt('val', '.JPEG')  
   
-imags, gray, ab = batch_tiny_imagenet('test', 2)  
-for g in gray:
-    plt.imshow(g, cmap ='gray'); plt.axis('off'); plt.show()
+#imags, gray, ab = batch_tiny_imagenet('test', 2)  
+#for g in gray:
+#    plt.imshow(g, cmap ='gray'); plt.axis('off'); plt.show()
