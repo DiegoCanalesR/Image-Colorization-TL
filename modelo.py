@@ -2,6 +2,7 @@
 
 import tensorflow as tf
 from preprocess import train_batch_tiny_imagenet
+from preprocess import test_batch_tiny_imagenet
 import time
 import os
 
@@ -114,9 +115,10 @@ class model():
         output = output_layer(ft, shape=[3, 3, 32, 2], stride=[1, 1, 1, 1])
         output = tf.image.resize_images(output, [224, 224], method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
         self.output = tf.image.resize_images(output, [224, 224], method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+        #loss
         self.loss = tf.reduce_mean(tf.squared_difference(self.labels, self.output))
         
-   
+   #Para entrenar
     def train_model(self, imgs):
         optimizer = self.optimizer()
         saver = tf.train.Saver()
@@ -130,11 +132,36 @@ class model():
                     _, X, Y = train_batch_tiny_imagenet(imgs)
                     dict_train = {self.inputs: X, self.labels: Y}
                     opt , loss_val = sess.run([optimizer, self.loss], dict_train)
-                    loss_sum = loss_sum + loss_val
+                    loss_sum = (loss_sum + loss_val)/batch
                     #print('batch: '+batch+', loss: '+loss_val)
                 t_epoch = time.time() - t_epoch_0
-                loss = loss_sum/num_batches
-                print('epoch: '+epoch+', loss: '+loss+', time: '+t_epoch)
+                #loss = loss_sum/num_batches
+                print('epoch: '+epoch+', loss: '+loss_sum+', time: '+t_epoch)
             save_model = saver.save(sess, model_path)
+    
+    #Para testing     
+    def test_model(self, imgs):
+        saver = tf.train.Saver()
+        num_batches = int(len(imgs)/batch_size)
+        with tf.Session() as sess:
+            saver.restore(sess, model_path)
+            loss_sum = 0
+            for batch in range(num_batches):
+                _, X, Y = test_batch_tiny_imagenet(batch_size)
+                dict_test = {self.inputs: X, self.labels: Y}
+                Y_pred, loss_val = sess.run([self.output, self.loss], dict_test)
+                get_image(X, Y_pred)
+                loss_sum = (loss_sum + loss_val)/batch
+            print('loss: '+loss_sum)
                 
+            
+        
+
+
+
+
+
+
+
+
 
