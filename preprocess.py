@@ -4,6 +4,7 @@ import os
 import cv2
 from random import shuffle
 import matplotlib.pyplot as plt
+import numpy as np
 
 def tiny_imagenet_txt(set_type, img_type):
     path = os.getcwd() + '\\tiny-imagenet-200\\'+ set_type
@@ -39,6 +40,13 @@ def batch_tiny_imagenet(set_type, batch_size):
     imgs = lines[:batch_size]
     gray, a, b, ab = get_gray_and_ab(imgs)
     return imgs, gray, ab
+
+def join_image(X, Y_pred, batch_size, imgs):
+    for batch in range(batch_size):
+        image = np.concatenate((X,Y),2)
+        image = cv2.cvtColor(result, cv2.COLOR_LAB2BGR)
+        name = imgs[batch][-14:]
+        save_path = os.getcwd() + '\\tiny-imagenet-200\\img_model1'+name
   
 #tiny_imagenet_txt('train', '.JPEG')
 #tiny_imagenet_txt('test', '.JPEG')
