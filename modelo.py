@@ -8,37 +8,40 @@ import os
 
 image_size = 224
 batch_size = 1
-epochs = 10
-model_path = os.getcwd() + '\\model1'
+epochs = 30
+model_path = os.getcwd() + '\\model1\\model1'
+tf.reset_default_graph()
 
 
 ##Capas a utilizar
 #Capa convolucional
 def conv_layer(layer_name, tensor, shape, stride):
-    weights = tf.get_variable("weights", shape, initializer = tf.contrib.layers.xavier_initializer_conv2d())
-    biases = tf.get_variable("biases", [shape[3]], initializer=tf.constant_initializer(0.05))
-    tf.summary.histogram(layer_name + "/weights", weights)
-    tf.summary.histogram(layer_name + "/biases", biases)
-    conv = tf.nn.conv2d(tensor, weights, stride, padding='SAME')
-    return tf.nn.relu(conv + biases)
+    with tf.variable_scope(layer_name):
+        weights = tf.get_variable("weights", shape, initializer = tf.contrib.layers.xavier_initializer_conv2d())
+        biases = tf.get_variable("biases", [shape[3]], initializer=tf.constant_initializer(0.05))
+        tf.summary.histogram(layer_name + "/weights", weights)
+        tf.summary.histogram(layer_name + "/biases", biases)
+        conv = tf.nn.conv2d(tensor, weights, stride, padding='SAME')
+        return tf.nn.relu(conv + biases)
 
 #Capa fully-connected
 def fc_layer(layer_name, tensor, shape):
-    weights = tf.get_variable("weights", shape, initializer = tf.contrib.layers.xavier_initializer())
-    biases = tf.get_variable("biases", [shape[1]], initializer=tf.constant_initializer(0.0))
-    tf.summary.histogram(layer_name + "/weights", weights)
-    tf.summary.histogram(layer_name + "/biases", biases)
-    mult_out = tf.matmul(tensor, weights)
-    return tf.nn.relu(mult_out+biases)
+    with tf.variable_scope(layer_name):
+        weights = tf.get_variable("weights", shape, initializer = tf.contrib.layers.xavier_initializer())
+        biases = tf.get_variable("biases", [shape[1]], initializer=tf.constant_initializer(0.0))
+        tf.summary.histogram(layer_name + "/weights", weights)
+        tf.summary.histogram(layer_name + "/biases", biases)
+        mult_out = tf.matmul(tensor, weights)
+        return tf.nn.relu(mult_out+biases)
 
 #Capa de fusion de features
 def fusion_layer(midlvl_features, global_features, shape, stride):
     midlvlft_shape = midlvl_features.get_shape().as_list()
     new_shape = [batch_size, midlvlft_shape[1]*midlvlft_shape[2], 256]
-    midlvlft_reshaped = tf.reshape(midlvlft_shape, new_shape)
+    midlvlft_reshaped = tf.reshape(midlvl_features, new_shape)
     fusion_lvl = []
-    for j in range(midlvlft_reshaped[0]):
-        for i in range(midlvlft_reshaped[1]):
+    for j in range(midlvlft_reshaped.shape[0]):
+        for i in range(midlvlft_reshaped.shape[1]):
              see_mid = midlvlft_reshaped[j, i, :]
              see_mid_shape = see_mid.get_shape().as_list()
              see_mid = tf.reshape(see_mid, [1, see_mid_shape[0]])
@@ -113,22 +116,23 @@ class model():
 
         #capa de salida 
         output = output_layer(ft, shape=[3, 3, 32, 2], stride=[1, 1, 1, 1])
-        output = tf.image.resize_images(output, [224, 224], method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
         self.output = tf.image.resize_images(output, [224, 224], method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
         #loss
         self.loss = tf.reduce_mean(tf.squared_difference(self.labels, self.output))
         
    #Para entrenar
-    def train_model(self, imgs):
+    def train_model(self):
         optimizer = self.optimizer()
         saver = tf.train.Saver()
-        num_batches = int(len(imgs)/batch_size)
-        with tf.Session as sess:
+        data_size = 100000
+        #num_batches = int(data_size/batch_size)
+        num_batches = 10
+        with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
-            for epoch in range(epochs):
+            for epoch in range(1,epochs):
                 t_epoch_0 = time.time()
                 loss_sum = 0
-                for batch in range(num_batches):
+                for batch in range(1,num_batches):
                     _, X, Y = batch_tiny_imagenet('train', batch_size)
                     dict_train = {self.inputs: X, self.labels: Y}
                     opt , loss_val = sess.run([optimizer, self.loss], dict_train)
@@ -136,7 +140,7 @@ class model():
                     #print('batch: '+batch+', loss: '+loss_val)
                 t_epoch = time.time() - t_epoch_0
                 #loss = loss_sum/num_batches
-                print('epoch: '+epoch+', loss: '+loss_sum+', time: '+t_epoch)
+                print('epoch: '+str(epoch)+', loss: '+str(loss_sum)+', time: '+str(t_epoch))
             save_model = saver.save(sess, model_path)
     
     #Para testing     
@@ -154,8 +158,10 @@ class model():
                 loss_sum = (loss_sum + loss_val)/batch
             print('loss: '+loss_sum)
                 
-            
-        
+imgs = batch_tiny_imagenet('train', 100)            
+m = model() 
+m.build_model()
+m.train_model()      
 
 
 
