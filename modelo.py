@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import tensorflow as tf
+from preprocess import train_batch_tiny_imagenet
+import time
+import os
 
 image_size = 224
 batch_size = 1
+epochs = 10
+model_path = os.getcwd() + '\\model1'
 
 
 ##Capas a utilizar
@@ -55,7 +60,7 @@ def output_layer(tensor, shape, stride):
 
 
 #Clase para el modelo
-class modelo():
+class model():
     
     #Inicializacion
     def __init__(self):
@@ -64,12 +69,14 @@ class modelo():
         self.loss = None
         self.output = None
         
+    def optimizer(self):
+        return tf.train.AdamOptimizer(1e-4).minimize(self.loss)
     
     #Construccion del modelo
     def build_model(self):
-        input_data = self.inputs
+        img = self.inputs
         #capas para low-level features
-        lowlvl = conv_layer('low_lvl_conv1', input_data, shape=[3, 3, 1, 64], stride=[1, 2, 2, 1])
+        lowlvl = conv_layer('low_lvl_conv1', img, shape=[3, 3, 1, 64], stride=[1, 2, 2, 1])
         lowlvl = conv_layer('low_lvl_conv2', lowlvl, shape=[3, 3, 64, 128], stride=[1, 1, 1, 1])
         lowlvl = conv_layer('low_lvl_conv3', lowlvl, shape=[3, 3, 128, 128], stride=[1, 2, 2, 1])
         lowlvl = conv_layer('low_lvl_conv4', lowlvl, shape=[3, 3, 128, 256], stride=[1, 1, 1, 1])
@@ -108,6 +115,26 @@ class modelo():
         output = tf.image.resize_images(output, [224, 224], method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
         self.output = tf.image.resize_images(output, [224, 224], method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
         self.loss = tf.reduce_mean(tf.squared_difference(self.labels, self.output))
-
-
+        
+   
+    def train_model(self, imgs):
+        optimizer = self.optimizer()
+        saver = tf.train.Saver()
+        num_batches = int(len(imgs)/batch_size)
+        with tf.Session as sess:
+            sess.run(tf.global_variables_initializer())
+            for epoch in range(epochs):
+                t_epoch_0 = time.time()
+                loss_sum = 0
+                for batch in range(num_batches):
+                    _, X, Y = train_batch_tiny_imagenet(imgs)
+                    dict_train = {self.inputs: X, self.labels: Y}
+                    opt , loss_val = sess.run([optimizer, self.loss], dict_train)
+                    loss_sum = loss_sum + loss_val
+                    #print('batch: '+batch+', loss: '+loss_val)
+                t_epoch = time.time() - t_epoch_0
+                loss = loss_sum/num_batches
+                print('epoch: '+epoch+', loss: '+loss+', time: '+t_epoch)
+            save_model = saver.save(sess, model_path)
+                
 
