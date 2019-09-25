@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import tensorflow as tf
-from preprocess import train_batch_tiny_imagenet
-from preprocess import test_batch_tiny_imagenet
+from preprocess import batch_tiny_imagenet
+from preprocess import join_image
 import time
 import os
 
@@ -129,7 +129,7 @@ class model():
                 t_epoch_0 = time.time()
                 loss_sum = 0
                 for batch in range(num_batches):
-                    _, X, Y = train_batch_tiny_imagenet(imgs)
+                    _, X, Y = batch_tiny_imagenet('train', batch_size)
                     dict_train = {self.inputs: X, self.labels: Y}
                     opt , loss_val = sess.run([optimizer, self.loss], dict_train)
                     loss_sum = (loss_sum + loss_val)/batch
@@ -147,10 +147,10 @@ class model():
             saver.restore(sess, model_path)
             loss_sum = 0
             for batch in range(num_batches):
-                _, X, Y = test_batch_tiny_imagenet(batch_size)
+                imgs, X, Y = batch_tiny_imagenet('test', batch_size)
                 dict_test = {self.inputs: X, self.labels: Y}
                 Y_pred, loss_val = sess.run([self.output, self.loss], dict_test)
-                get_image(X, Y_pred)
+                join_image(X, Y_pred, batch_size, imgs)
                 loss_sum = (loss_sum + loss_val)/batch
             print('loss: '+loss_sum)
                 
