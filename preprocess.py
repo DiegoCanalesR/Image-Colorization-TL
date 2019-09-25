@@ -31,25 +31,19 @@ def get_gray_and_ab(imgs):
         ab.append(img[:,:,1:])
     return gray,a,b,ab
 
-def train_batch_tiny_imagenet(batch_size):
-    path = os.getcwd()  + '\\tiny-imagenet-200\\train'#+ set_type
-    txt = path + '\\train_paths.txt'
+def batch_tiny_imagenet(set_type, batch_size):
+    path = os.getcwd()  + '\\tiny-imagenet-200\\'+set_type
+    txt = path + '\\'+set_type+'_paths.txt'
     lines = open(txt).read().splitlines()
     shuffle(lines)
     imgs = lines[:batch_size]
     gray, a, b, ab = get_gray_and_ab(imgs)
     return imgs, gray, ab
-        
-tiny_imagenet_txt('train', '.JPEG')
-tiny_imagenet_txt('test', '.JPEG')
-tiny_imagenet_txt('val', '.JPEG')  
   
-imags = train_batch_tiny_imagenet(2)  
-
-#g,a,b,_ = get_gray_and_ab(imags)
-#for gg in g:
-#    plt.imshow(gs, cmap ='gray'); plt.axis('off'); plt.show()
-#for aa in a:
-#    plt.imshow(aa); plt.axis('off'); plt.show()
-#for bb in b:
-#    plt.imshow(bb); plt.axis('off'); plt.show()
+#tiny_imagenet_txt('train', '.JPEG')
+#tiny_imagenet_txt('test', '.JPEG')
+#tiny_imagenet_txt('val', '.JPEG')  
+  
+imags, gray, ab = batch_tiny_imagenet('test', 2)  
+for g in gray:
+    plt.imshow(g, cmap ='gray'); plt.axis('off'); plt.show()
