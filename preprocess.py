@@ -3,7 +3,6 @@
 import os
 import cv2
 from random import shuffle
-import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -34,12 +33,12 @@ def get_gray_and_ab(imgs):
         img = cv2.imread(img)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
         gray.append(resize(img[:,:,0],224))
-        #gray.append(img[:,:,0])
-        a.append(np.expand_dims(img[:,:,1],2))
+        #gray.append(np.expand_dims(img[:,:,0],2))
+        a.append(img[:,:,1])
         b.append(img[:,:,2])
         a_resized = resize(img[:,:,1],224)
         b_resized = resize(img[:,:,2],224)
-        ##ab.append(img[:,:,1:])
+        #ab.append(img[:,:,1:])
         ab.append(np.concatenate((a_resized, b_resized),2))
     return gray,a,b,ab
 

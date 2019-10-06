@@ -42,15 +42,15 @@ def train_(data_size, img_size):
     model.add(Conv2D(2, kernel_size=3, strides=(1,1), padding='same', activation='relu'))
     model.add(keras.layers.UpSampling3D(size=(2, 2, 1), data_format=None))
     
-    model.compile(optimizer='adam', loss='mean_squared_error')
-    tensorboard = TensorBoard(log_dir="logs/scalars_mse/" + datetime.now().strftime("%Y%m%d-%H%M%S"))
+    model.compile(optimizer='adam', loss='logcosh')
+    tensorboard = TensorBoard(log_dir="logs/scalars_new/" + datetime.now().strftime("%Y%m%d-%H%M%S"))
     model.fit(X_train, Y_train, epochs = 50, batch_size=64, validation_data=(X_val,Y_val), callbacks=[tensorboard])
     
     #guardar modelo
     model_json = model.to_json()
-    with open("model_mse.json", "w") as json_file:
+    with open("model_new.json", "w") as json_file:
         json_file.write(model_json)
-    model.save_weights("model_mse.h5")
+    model.save_weights("model_new.h5")
     print("Modelo guardado")
     
 def test_compare(img_size):
@@ -99,7 +99,7 @@ def test_compare(img_size):
     ax4.axis('off')
     
 
-    return img2, img2_
+    #return img2, img2_
 
 #train_(1000, 224)
 
