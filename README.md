@@ -4,20 +4,41 @@
 #### Auxiliar: Ignacio Reyes
 #### Tutor: Germán García
 
-Este proyecto implementa modelos que apuntan a solucionar el problema de colorización automática de imágenes en escala de grises. A continuación se muestran instrucciones para ejecutar el código correspondiente al primer modelo propuesto como un acercamiento a la solución del problema.
+Este proyecto implementa modelos que apuntan a solucionar el problema de colorización automática de imágenes en escala de grises. A continuación se muestran instrucciones para ejecutar el código correspondiente a los distintos modelos propuestos como un acercamiento a la solución del problema. Las distintas arquitecturas y detalles sobre los modelos pueden encontrarse en **Informe.pdf**.
 
-Para entrenar el modelo, en primer lugar debe ejecutarse desde algún IDE de *Python* el archivo **modelo.py**, que se encarga de implementar la arquitectura del modelo y también las funciones necesarias para los procesos de *training* y *testing*.
+Para entrenar el modelo, en primer lugar debe ejecutarse desde algún IDE de *Python* el archivo correspondiente a cada uno de los modelos:
+1. **modelo_1_mse.py** para  el primer modelo utilizando *loss* MSE.
+2. **modelo_2_mse.py** para el segundo modelo utilizando *loss* MSE.
+3. **modelo_1_lossprob.py** para  el primer modelo utilizando *loss* probabilística.
+4. **modelo_2_lossprob.py** para el segundo modelo utilizando *loss* probabilística.
 
-Una vez ejecutado dicho archivo, desde llamarse a la funcion **train_(data_size, img_size)** que recibe como parámetros el tamaño deseado para el conjunto de entrenamiento y el tamaño con que se desea trabajar las imágenes . En nuestro caso, el tamaño del *training set* que se utilizó fue 1000 y 224 como tamaño de las imágenes. Esto iniciará el entrenamiento del modelo y lo guardará la configuración y los pesos calculados:
+
+Cada programa de la lista se encarga de implementar la arquitectura de un modelo y también las funciones necesarias para los procesos de *training* y *testing*.
+
+Una vez ejecutado alguno de los archivs, desde llamarse a la funcion **train_model()**. Esto iniciará el entrenamiento del modelo y guardará la configuración y los pesos calculados:
 ```sh
-train_(1000, 224)
+train_model()
 ```
-Luego, para realizar pruebas, se llama a la función **test_compare(img_size)** que recibe nuevamente el tamaño de la imagen. La implementación de esta función asume que el entrenamiento fue ejecutado en dos modelos distintos, guardando los modelos y los pesos calculados en archivos respectivos, que en este caso se encuentran en el repositorio. Selecciona aleatoriamente una imagen desde el conjunto de pruebas y la muestra junto a su versión en escala de grises y a los resultados entregados por los modelos:
+Luego, para realizar pruebas, se llama a la función **test_model()** que recibe nuevamente el tamaño de la imagen. Selecciona aleatoriamente una imagen desde el conjunto de pruebas y la muestra junto a su versión en escala de grises y al resultado entregado por el modelo entrenado:
 ```sh
-test_compare(224)
+test_model()
 ```
 Ejemplos de resultado de esta ejecución se muestran en la figura a continuación:
 
-![Ejemplos de *test*](https://github.com/DiegoCanalesR/Proyecto-EL4106/blob/master/prelim.PNG)
+Ejemplos obtenidos con el primer modelo con *loss* MSE:
 
-Con respecto a las funciones implementadas en **preprocess.py**, no es necesario ejecutar manualmente este programa, puesto que todas las funcionalidades quedan implícitas dentro de **modelo.py**.
+![Ejemplos de *test*](https://github.com/DiegoCanalesR/Proyecto-EL4106/blob/master/res1mse.PNG)
+
+Ejemplos obtenidos con el segundo modelo con *loss* MSE:
+
+![Ejemplos de *test*](https://github.com/DiegoCanalesR/Proyecto-EL4106/blob/master/res2mse.PNG)
+
+Ejemplos obtenidos con el primer modelo con *loss* probabilístico:
+
+![Ejemplos de *test*](https://github.com/DiegoCanalesR/Proyecto-EL4106/blob/master/res1prob.PNG)
+
+Ejemplos obtenidos con el segundo modelo con *loss* probabilístico:
+
+![Ejemplos de *test*](https://github.com/DiegoCanalesR/Proyecto-EL4106/blob/master/res2prob.PNG)
+
+Con respecto a las funciones implementadas en **preprocesamiento.py**, no es necesario ejecutar manualmente este programa, puesto que todas las funcionalidades quedan implícitas dentro de **herramientas.py**.
